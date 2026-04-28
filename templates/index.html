@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 class="fw-bold">📈 Dashboard</h2>
+
+        <div class="card-ui px-3 py-2 text-center">
+            <small style="opacity:0.7;">Market</small><br>
+
+            {% if market_status == 'OPEN' %}
+                <b style="color:#22c55e;">🟢 OPEN</b>
+            {% elif market_status == 'PRE-OPEN' %}
+                <b style="color:#facc15;">🟡 PRE-OPEN</b>
+            {% elif market_status == 'CLOSED' %}
+                <b style="color:#ef4444;">🔴 CLOSED</b>
+            {% else %}
+                <b style="color:#6b7280;">⚪ UNKNOWN</b>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- HERO SEARCH -->
+    <div class="card-ui mb-4 text-center p-4">
+
+        <h4 class="mb-3">🔍 Predict Stock Price</h4>
+
+        <form action="/predict" method="POST" id="searchForm">
+
+            <div class="search-box">
+
+                <input type="text" name="nm" id="stockInput"
+                       placeholder="Enter stock (AAPL, TSLA, GOOG)"
+                       required list="stockList" autocomplete="off">
+
+                <!-- datalist -->
+                <datalist id="stockList">
+                    <option value="AAPL">
+                    <option value="TSLA">
+                    <option value="GOOG">
+                    <option value="INFY.NS">
+                    <option value="RELIANCE.NS">
+                    <option value="NVDA">
+                    <option value="MSFT">
+                    <option value="AMZN">
+                    <option value="META">
+                </datalist>
+
+                <button class="btn-main" id="predictBtn">Predict</button>
+
+            </div>
+
+        </form>
+
+        <small style="opacity:0.6;">
+            Try: AAPL, TSLA, GOOG, INFY.NS, RELIANCE.NS
+        </small>
+
+    </div>
+
+    <!-- QUICK STOCKS -->
+    <div class="card-ui mb-4">
+        <h5 class="mb-3">🔥 Quick Predict</h5>
+
+        <div class="row g-3">
+            {% for s in ['AAPL','TSLA','GOOG','INFY.NS'] %}
+            <div class="col-md-3 col-6">
+                <div class="stock-card" onclick="quickPick('{{ s }}')">
+                    <b>{{ s }}</b>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- KPI -->
+    <div class="row g-4">
+        <div class="col-md-3 col-6">
+            <div class="kpi"><small>Models Used</small><h3>3+</h3></div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="kpi"><small>Accuracy</small><h3>92%</h3></div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="kpi"><small>Live Data</small><h3>1m</h3></div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="kpi"><small>Status</small><h3 style="color:#22c55e;">Active</h3></div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+.search-box {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.search-box input {
+    width: 100%;
+    max-width: 350px;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: #1f2937;
+    color: white;
+    transition: 0.3s;
+}
+
+.search-box input:focus {
+    box-shadow: 0 0 10px #6366f1;
+}
+
+.search-box button {
+    padding: 12px 20px;
+}
+
+.stock-card {
+    background: rgba(255,255,255,0.06);
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.stock-card:hover {
+    transform: translateY(-6px);
+    background: rgba(99,102,241,0.25);
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const input = document.getElementById("stockInput");
+    const form = document.getElementById("searchForm");
+    const btn = document.getElementById("predictBtn");
+
+    window.quickPick = function(stock) {
+        input.value = stock;
+        form.submit();
+    }
+
+    form.addEventListener("submit", function() {
+        btn.innerText = "Loading...";
+        btn.disabled = true;
+    });
+
+    input.addEventListener("input", function() {
+        this.value = this.value.toUpperCase();
+    });
+
+    // ✅ FIX: reset button on back navigation
+    window.addEventListener("pageshow", function() {
+        btn.innerText = "Predict";
+        btn.disabled = false;
+    });
+
+});
+</script>
+
+{% endblock %}

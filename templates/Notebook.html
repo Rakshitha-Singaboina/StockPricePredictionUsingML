@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="card-ui mb-4">
+        <h2 class="fw-bold">📘 Model Analysis Notebook</h2>
+        <p style="opacity:0.8;">
+            This section explains how different machine learning models are used
+            for stock price prediction and how they perform.
+        </p>
+    </div>
+
+    <!-- MODELS -->
+    <div class="row g-4">
+
+        <!-- ARIMA -->
+        <div class="col-md-4">
+            <div class="card-ui">
+                <h5>📊 ARIMA</h5>
+                <p style="opacity:0.8;">
+                    ARIMA is a statistical model used for time series forecasting.
+                    It captures trends and seasonality in stock prices.
+                </p>
+            </div>
+        </div>
+
+        <!-- LSTM -->
+        <div class="col-md-4">
+            <div class="card-ui">
+                <h5>🧠 LSTM</h5>
+                <p style="opacity:0.8;">
+                    LSTM is a deep learning model that learns patterns from sequential data,
+                    making it suitable for stock prediction.
+                </p>
+            </div>
+        </div>
+
+        <!-- LR -->
+        <div class="col-md-4">
+            <div class="card-ui">
+                <h5>📈 Linear Regression</h5>
+                <p style="opacity:0.8;">
+                    Linear Regression predicts stock trends based on historical price relationships.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- WORKFLOW -->
+    <div class="card-ui mt-4">
+        <h5>⚙️ System Workflow</h5>
+
+        <ul style="line-height:2;">
+            <li>Fetch stock data using API</li>
+            <li>Preprocess and clean data</li>
+            <li>Apply ARIMA, LSTM, and Linear Regression</li>
+            <li>Combine predictions using Voting Ensemble</li>
+            <li>Display results in dashboard</li>
+        </ul>
+    </div>
+
+    <!-- ADVANTAGES -->
+    <div class="card-ui mt-4">
+        <h5>🚀 Why Multiple Models?</h5>
+
+        <p style="opacity:0.85;">
+            Stock market data is highly volatile and unpredictable. Using a single model
+            may lead to inaccurate predictions. By combining multiple models, the system
+            improves reliability and reduces prediction errors.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}

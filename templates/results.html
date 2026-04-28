@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container-fluid">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <h2 class="fw-bold">📊 {{ stock }} Analysis</h2>
+
+    <div class="d-flex gap-3 flex-wrap">
+        <div class="card-ui text-center px-3 py-2">
+            <small>Market</small><br>
+            <b style="color:
+                {% if market_status == 'OPEN' %}#22c55e
+                {% elif market_status == 'PRE-OPEN' %}#facc15
+                {% else %}#ef4444{% endif %}">
+                {{ market_status }} ●
+            </b><br>
+            <small>{{ market_time }}</small>
+        </div>
+
+        <div class="kpi final px-4 py-2 text-center">
+            <small>Final Prediction</small>
+            <h4>₹ {{ final }}</h4>
+            <small>{{ today_date }} | {{ current_time }}</small>
+        </div>
+    </div>
+</div>
+
+<!-- KPI -->
+<div class="row g-3 mb-4 text-center">
+    <div class="col-md-3"><div class="kpi"><small>ARIMA</small><h4>₹ {{ arima }}</h4></div></div>
+    <div class="col-md-3"><div class="kpi"><small>LSTM</small><h4>₹ {{ lstm }}</h4></div></div>
+    <div class="col-md-3"><div class="kpi"><small>Linear</small><h4>₹ {{ linear }}</h4></div></div>
+    <div class="col-md-3">
+        <div class="kpi">
+            <small>Signal</small>
+            <h4 style="color:
+                {% if signal == 'BUY' %}#22c55e
+                {% elif signal == 'SELL' %}#ef4444
+                {% else %}#facc15{% endif %}">
+                {{ signal }}
+            </h4>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="row g-4">
+
+    <!-- CHART -->
+    <div class="col-lg-8">
+        <div class="card-ui">
+            <div class="d-flex justify-content-between mb-2">
+                <h5>📈 Price Trend</h5>
+                <small>Live (updates every 5s)</small>
+            </div>
+
+            <div style="height:280px;">
+                <canvas id="trendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI -->
+    <div class="col-lg-4">
+        <div class="card-ui">
+            <h5>🧠 AI Insights</h5>
+
+            <p>Trend:
+                <b style="color:
+                    {% if trend == 'Uptrend' %}#22c55e{% else %}#ef4444{% endif %}">
+                    {{ trend }}
+                </b>
+            </p>
+
+            <p>Best Model: <b>{{ best_model }}</b></p>
+
+            <p>Expected Move:
+                <b style="color:
+                    {% if move > 0 %}#22c55e{% else %}#ef4444{% endif %}">
+                    {{ move }}%
+                </b>
+            </p>
+
+            <div class="mt-2 p-2 rounded" style="background:#111827;">
+                <small>{{ signal }} recommended</small>
+            </div>
+
+            <p class="mt-3 mb-1">Confidence: <b>{{ confidence }}%</b></p>
+
+            <div style="background:#1f2937; height:8px; border-radius:10px;">
+                <div style="width: {{ confidence }}%; background:linear-gradient(to right,#22c55e,#4f46e5); height:100%; border-radius:10px;"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SECOND -->
+<div class="row g-4 mt-1">
+
+    <div class="col-lg-6">
+        <div class="card-ui">
+            <h5>📊 Signals & Risk</h5>
+
+            <p>BUY: <b style="color:#22c55e">{{ buy }}%</b></p>
+            <p>SELL: <b style="color:#ef4444">{{ sell }}%</b></p>
+
+            <hr>
+
+            <p>Risk:
+                <b style="color:
+                    {% if risk == 'Low' %}#22c55e
+                    {% elif risk == 'Medium' %}#facc15
+                    {% else %}#ef4444{% endif %}">
+                    {{ risk }}
+                </b>
+            </p>
+
+            <hr>
+
+            <p>Strength: {{ strength }}%</p>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card-ui">
+            <h5>📊 Model Comparison</h5>
+            <div style="height:230px;">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SUMMARY -->
+<div class="card-ui mt-4">
+    <h5>📌 Summary</h5>
+    <p>Hybrid AI model combining ARIMA, LSTM, and Linear Regression.</p>
+    <p>⚡ Ensemble improves prediction reliability.</p>
+</div>
+
+<!-- NEWS -->
+<div class="card-ui mt-4">
+    <h5>📰 News & Sentiment</h5>
+
+    <p>Score: <b>{{ sentiment_score }}</b></p>
+    <p>Status: <b>{{ sentiment }}</b></p>
+
+    <ul>
+        {% for n in news %}
+        <li><a href="{{ n.link }}" target="_blank">{{ n.title }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('trendChart').getContext('2d');
+
+let rawLabels = {{ timestamps | tojson | safe }} || [];
+let prices = {{ prices | tojson | safe }} || [];
+
+// convert to IST properly
+function toIST(label) {
+    try {
+        let d;
+
+        // if full datetime
+        if (label.includes(" ")) {
+            d = new Date(label);
+        } else {
+            // if only HH:MM → assume today
+            const today = new Date();
+            d = new Date(`${today.toISOString().split('T')[0]} ${label}`);
+        }
+
+        return d.toLocaleString("en-IN", {
+            timeZone: "Asia/Kolkata",
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        });
+
+    } catch {
+        return label;
+    }
+}
+
+// apply conversion
+let labels = rawLabels.slice(-120).map(l => toIST(l));
+prices = prices.slice(-120).map(v => Number(v || 0));
+
+let chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: prices,
+            borderColor: '#6366f1',
+            backgroundColor: 'rgba(99,102,241,0.15)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 3,
+            pointRadius: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: ctx => "₹ " + Number(ctx.raw || 0).toFixed(2)
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: {
+                    maxRotation: 45,
+                    minRotation: 45,
+                    autoSkip: true,
+                    maxTicksLimit: 8
+                }
+            },
+            y: {
+                ticks: {
+                    callback: val => "₹" + Number(val).toFixed(2)
+                }
+            }
+        }
+    }
+});
+
+// LIVE UPDATE (fixed for IST)
+async function fetchLive() {
+    try {
+        const res = await fetch("/live-data/{{ stock }}");
+        const data = await res.json();
+
+        if (!data.time || data.time.length < 5) return;
+
+        chart.data.labels = data.time.slice(-120).map(t => toIST(t));
+        chart.data.datasets[0].data = data.price.slice(-120).map(v => Number(v || 0));
+
+        chart.update('none');
+
+    } catch {}
+}
+
+setInterval(fetchLive, 5000);
+
+// BAR CHART
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: ['ARIMA','LSTM','Linear','Final'],
+        datasets: [{
+            data: [{{ arima }}, {{ lstm }}, {{ linear }}, {{ final }}],
+            backgroundColor: ['#6366f1','#22c55e','#f59e0b','#a855f7'],
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } }
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+    <!-- HEADER -->
+    <div class="card-ui mb-4">
+        <h2 class="fw-bold">📊 About This Project</h2>
+        <p style="opacity:0.8;">
+            AI-powered stock prediction system combining multiple machine learning models
+            with real-time data visualization.
+        </p>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="row g-4">
+
+        <!-- MODELS -->
+        <div class="col-md-6">
+            <div class="card-ui">
+                <h5>🤖 Models Used</h5>
+                <ul style="line-height:2;">
+                    <li><b>ARIMA</b> – Time series forecasting</li>
+                    <li><b>LSTM</b> – Deep learning for sequential data</li>
+                    <li><b>Linear Regression</b> – Trend estimation</li>
+                    <li><b>Voting Ensemble</b> – Combines all models</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- FEATURES -->
+        <div class="col-md-6">
+            <div class="card-ui">
+                <h5>⚙️ Key Features</h5>
+                <ul style="line-height:2;">
+                    <li>Real-time stock data integration</li>
+                    <li>Interactive dashboard with charts</li>
+                    <li>Multi-model prediction system</li>
+                    <li>User authentication (login/signup)</li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="card-ui mt-4">
+        <h5>📌 Project Overview</h5>
+        <p style="opacity:0.85;">
+            This project is designed to predict stock prices using multiple machine learning models.
+            Instead of relying on a single algorithm, it combines predictions from ARIMA, LSTM,
+            and Linear Regression using an ensemble approach to improve reliability.
+        </p>
+
+        <p style="opacity:0.85;">
+            The system fetches real-time stock data, processes it through these models,
+            and displays the results through an interactive web dashboard. This makes it
+            closer to real-world financial applications rather than just a theoretical model.
+        </p>
+    </div>
+
+</div>
+
+{% endblock %}
